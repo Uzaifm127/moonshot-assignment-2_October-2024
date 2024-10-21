@@ -60,6 +60,7 @@ export default function ApplicationData({
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const from = searchParams.get("from") || cookies.from || "2022-10-04";
     const to = searchParams.get("to") || cookies.to || "2022-10-29";
+
     return {
       from: parse(from, "yyyy-MM-dd", new Date()),
       to: parse(to, "yyyy-MM-dd", new Date()),
@@ -182,14 +183,18 @@ export default function ApplicationData({
     const params = new URLSearchParams();
 
     if (dateRange?.from) {
-      const fromDate = dateRange.from.toISOString().split("T")[0];
+      const fromDate = format(dateRange?.from, "yyyy-MM-dd");
+
       params.set("from", fromDate);
+
       setCookie(null, "from", fromDate, { path: "/" });
     }
 
     if (dateRange?.to) {
-      const toDate = dateRange.to.toISOString().split("T")[0];
+      const toDate = format(dateRange?.to, "yyyy-MM-dd");
+
       params.set("to", toDate);
+
       setCookie(null, "to", toDate, { path: "/" });
     }
 

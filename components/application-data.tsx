@@ -47,6 +47,7 @@ export default function ApplicationData({
   const cookies = parseCookies();
 
   const [data, setData] = useState<any[]>([]);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<string | null>(
     searchParams.get("feature") || cookies.feature || null
   );
@@ -224,10 +225,25 @@ export default function ApplicationData({
     setDateRange(newDateRange);
   };
 
-  const onLogout = () => {
-    setAuthenticated(false);
-    setIsLoginVisible(true);
-    setIsSignupVisible(false);
+  const onLogout = async () => {
+    try {
+      setLogoutLoading(true);
+
+      const response = await fetch("/api/logout");
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+
+      setAuthenticated(false);
+      setIsLoginVisible(true);
+      setIsSignupVisible(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLogoutLoading(false);
+    }
   };
 
   const onShare = () => {
@@ -284,8 +300,13 @@ export default function ApplicationData({
           </Button>
         </div>
 
-        <Button className="flex" variant="default" onClick={onLogout}>
-          Logout
+        <Button
+          className="flex"
+          variant="default"
+          onClick={onLogout}
+          disabled={logoutLoading}
+        >
+          {logoutLoading ? "Please wait..." : "Logout"}
         </Button>
       </div>
       <div className="grid lg:grid-cols-2 gap-10">
